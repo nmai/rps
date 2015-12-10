@@ -14,9 +14,8 @@ let Status = new Mongo.Collection("status")
 Router.route('/player:_id', {
     template: "main_layout",
     onBeforeAction: function () {
-      console.log(this.params._id)
-       Session.set('id', this.params._id)
-       this.next()
+      Session.set('id', this.params._id)
+      this.next()
     }
 })
 
@@ -25,6 +24,7 @@ if (Meteor.isClient) {
   // counter starts at 0
   Session.setDefault('counter', 0)
   Session.setDefault('id', 0)
+  Session.setDefault('statmsg', 'Currently trying to retrieve status...')
 
   Template.greeting.helpers({
     id: function () {
@@ -34,8 +34,7 @@ if (Meteor.isClient) {
 
   Template.status.helpers({
     status: function () {
-      console.log(Status.findOne())
-      return Status.findOne()
+      return Status.find().fetch()
     }
   })
 
@@ -67,7 +66,7 @@ if (Meteor.isServer) {
         $set: {value: ""}
       })
     }
-    
+
     Meteor.methods({
       process: function (id, choice) {
 
@@ -81,22 +80,21 @@ if (Meteor.isServer) {
             
             switch (choices[0]) {
               case 'rock':
-                console.log('ROOOOCK')
-                if (choices[1] == 'scissors') 
+                if (choices[1] === 'scissors') 
                   winner = 1
-                else if (choices[1] == 'paper')
+                else if (choices[1] === 'paper')
                   winner = 2
                 break
               case 'paper':
-                if (choices[1] == 'rock') 
+                if (choices[1] === 'rock') 
                   winner = 1
-                else if (choices[1] == 'scissors')
+                else if (choices[1] === 'scissors')
                   winner = 2
                 break
               case 'scissors':
-                if (choices[1] == 'paper') 
+                if (choices[1] === 'paper') 
                   winner = 1
-                else if (choices[1] == 'rock')
+                else if (choices[1] === 'rock')
                   winner = 2
                 break
             }
@@ -114,13 +112,17 @@ if (Meteor.isServer) {
                 break
             }
 
-            Status.update({value: true}, {
+            Status.update({}, {
               $set: {value: message}
-            });
+            })
 
             return 'Round complete, starting a new one'
 
           } else {
+
+            Status.update({}, {
+              $set: {value: 'Waiting for Player ' + ( ((id-1) ^ 1) + 1) + '...'}
+            })
 
             return 'Action received, waiting for other party.'
 
@@ -129,16 +131,5 @@ if (Meteor.isServer) {
         return new Error('Bad player ID')
       },
     })
-    // Router.map(function () {
-    //   this.route('upload', {
-    //     where: 'server',
-    //     action: function () {
-    //       console.log('upload hit')
-    //       var request = this.request
-    //       var response = this.response
-    //       response.end('hello from the server\n')
-    //     }
-    //   })
-    // })
   })
 }

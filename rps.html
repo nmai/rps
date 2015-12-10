@@ -11,7 +11,8 @@
 
   {{> status}}
 
-  <p>your choices:</p>
+  <br>
+
   {{> choices}}
 </template>
 
@@ -20,12 +21,14 @@
 </template>
 
 <template name="status">
-    {{status.value}}
+  {{#each status}}
+    {{> line}}
+  {{/each}}
 </template>
 
-<!-- <template name="line">
+<template name="line">
   <li>{{value}}</li>
-</template> -->
+</template>
 
 <template name="choices">
   <button type="button" choice="rock">Rock</button>
