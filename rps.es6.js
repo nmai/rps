@@ -58,19 +58,75 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    
+    let choices = []
+
     if (Status.find().count() === 0) {
-      Status.insert({value: "Test"});
+      Status.insert({value: ""})
     } else {
       Status.update({value: true}, {
-        $set: {value: "Test"}
-      });
+        $set: {value: ""}
+      })
     }
-    console.log(Status.find().count())
+    
     Meteor.methods({
       process: function (id, choice) {
-        var result = 'choice was: ' + choice
-        return result
+
+        choices[id-1] = choice
+
+        if( id == 1 || id == 2 ) {
+          if (choices[0] && choices[1]) {
+
+            // will remain 0 in the event of a tie
+            let winner = 0
+            
+            switch (choices[0]) {
+              case 'rock':
+                console.log('ROOOOCK')
+                if (choices[1] == 'scissors') 
+                  winner = 1
+                else if (choices[1] == 'paper')
+                  winner = 2
+                break
+              case 'paper':
+                if (choices[1] == 'rock') 
+                  winner = 1
+                else if (choices[1] == 'scissors')
+                  winner = 2
+                break
+              case 'scissors':
+                if (choices[1] == 'paper') 
+                  winner = 1
+                else if (choices[1] == 'rock')
+                  winner = 2
+                break
+            }
+            
+            // cleanup in preparation for the next round
+            choices = []
+
+            let message = "It's a tie!"
+            switch (winner) {
+              case 1:
+                message = "Player 1 won the round!"
+                break
+              case 2:
+                message = "Player 2 won the round!"
+                break
+            }
+
+            Status.update({value: true}, {
+              $set: {value: message}
+            });
+
+            return 'Round complete, starting a new one'
+
+          } else {
+
+            return 'Action received, waiting for other party.'
+
+          }
+        }
+        return new Error('Bad player ID')
       },
     })
     // Router.map(function () {
