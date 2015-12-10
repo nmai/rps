@@ -3,12 +3,32 @@
 </head>
 
 <body>
-  <h1>Welcome to Meteor!</h1>
-
-  {{> hello}}
+  
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
+<template name="main_layout">
+  <h1>{{> greeting}}</h1>
+
+  {{> status}}
+
+  <p>your choices:</p>
+  {{> choices}}
+</template>
+
+<template name="greeting">
+  Hello, Player {{id}}
+</template>
+
+<template name="status">
+    {{status.value}}
+</template>
+
+<!-- <template name="line">
+  <li>{{value}}</li>
+</template> -->
+
+<template name="choices">
+  <button type="button" choice="rock">Rock</button>
+  <button type="button" choice="paper">Paper</button>
+  <button type="button" choice="scissors">Scissors</button>
 </template>
